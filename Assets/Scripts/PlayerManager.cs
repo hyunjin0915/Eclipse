@@ -27,7 +27,7 @@ public class PlayerManager : MonoBehaviour
     private float pitch = 0.0f; //위아래 회전값
     private float yaw = 0.0f; // 좌우 회전값
     private bool isFirstPerson = false; //1인칭 모드 여부
-    private bool isRotaterAroundPlayer = true; //카메라가 플레이어 주위를 회전하는지 여부 
+    private bool isRotateAroundPlayer = true; //카메라가 플레이어 주위를 회전하는지 여부 
 
     //중력 관련 변수
     public float gravity = -9.81f;
@@ -89,8 +89,8 @@ public class PlayerManager : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.F))
         {
-            isRotaterAroundPlayer = !isRotaterAroundPlayer;
-            Debug.Log(isRotaterAroundPlayer ? "카메라가 주위를 회전합니다." : "플레이어가 시야를 따라서 회전합니다.");
+            isRotateAroundPlayer = !isRotateAroundPlayer;
+            Debug.Log(isRotateAroundPlayer ? "카메라가 주위를 회전합니다." : "플레이어가 시야를 따라서 회전합니다.");
         }
 
         if (isFirstPerson)
@@ -220,7 +220,7 @@ public class PlayerManager : MonoBehaviour
 
     void UpdateCameraPosition()
     {
-        if(isRotaterAroundPlayer)
+        if(isRotateAroundPlayer)
         {
             //카메라가 플레이어 오른쪽에서 회전하도록 설정
             Vector3 direction = new Vector3(0, 0, -currentDistance);
