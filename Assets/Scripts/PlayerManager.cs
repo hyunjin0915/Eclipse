@@ -245,9 +245,16 @@ public class PlayerManager : MonoBehaviour
             Ray ray = new Ray(mainCamera.transform.position, mainCamera.transform.forward); //카메라에서 정면을 향해 
             RaycastHit hit;
 
+            GameObject hitObject;
+
             if(Physics.Raycast(ray, out hit, weaponMaxDistance))
             {
-                Debug.Log("Hit : " + hit.collider.name);
+                hitObject = hit.collider.gameObject;
+                if(hitObject.CompareTag("PlayerDamage"))
+                {
+                    hitObject.SetActive(false);
+                }
+                
                 Debug.DrawLine(ray.origin, hit.point, Color.red, 2.0f);
                     
             }
