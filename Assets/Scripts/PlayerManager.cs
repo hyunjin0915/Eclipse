@@ -4,7 +4,7 @@ using UnityEngine; //nameSpace : 소속
 
 public class PlayerManager : MonoBehaviour
 {
-    private float moveSpeed = 5.0f; //플레이어 이동 속도
+    public float moveSpeed = 5.0f; //플레이어 이동 속도
     public float mouseSensitivity = 100.0f;//마우스 감도
     public Transform cameraTransform; //카메라 트랜스폼
     public CharacterController characterController; // 캐릭터 컨트롤러 컴포넌트
@@ -40,8 +40,10 @@ public class PlayerManager : MonoBehaviour
     float horizontal;
     float vertical;
     private bool isRunning = false;
+    private bool isCrouching = false;
     public float walkSpeed = 5.0f;
     public float runSpeed = 10.0f;
+    public float crouchSpeed = 3.0f;
 
     private bool isAim = false;
     private bool isFire = false;
@@ -74,7 +76,7 @@ public class PlayerManager : MonoBehaviour
 
         animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        
+        animator.SetFloat("Horizontal", horizontal);
     }
 
     void Update()
@@ -100,6 +102,43 @@ public class PlayerManager : MonoBehaviour
             }
 
         }
+        AnimationSet();
+        Crouch();
+    }
+    void AnimationSet()
+    {
+        animator.SetFloat("Horizontal", horizontal);
+        animator.SetFloat("Vertical", vertical);
+        animator.SetBool("isRunning", isRunning);
+    }
+
+    void Crouch()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            if(!isCrouching)
+            {
+                isCrouching = true;
+                animator.SetBool("isCrouching", isCrouching);
+                moveSpeed = crouchSpeed;
+                /*animator.SetTrigger("Crouch");
+                animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+                if(animatorStateInfo.IsName("ToCrouched") && animatorStateInfo.normalizedTime >= 1.0f)
+                {
+                    animator.SetBool("isCrouching", isCrouching);
+                }*/
+                
+            }
+            else
+            {
+                isCrouching = false;
+                animator.SetBool("isCrouching", isCrouching);
+                moveSpeed = walkSpeed;
+                
+            }
+
+        }
+
     }
 
     void UpdateAimTarget()
@@ -150,12 +189,12 @@ public class PlayerManager : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift))
         {
             isRunning = true;
-
+            moveSpeed = runSpeed;
         }
         else
         {
             isRunning = false;
-
+            moveSpeed = walkSpeed;
         }
 
     }
@@ -226,10 +265,6 @@ public class PlayerManager : MonoBehaviour
             animator.SetTrigger("isWeaponChange");
             shotGunObj.SetActive(true);
         }
-        moveSpeed = isRunning ? runSpeed : walkSpeed;
-        animator.SetFloat("Horizontal", horizontal);
-        animator.SetFloat("Vertical", vertical);
-        animator.SetBool("isRunning", isRunning);
         //animator.SetBool("isAim", isAim);
     }
     void Attack()
@@ -250,7 +285,7 @@ public class PlayerManager : MonoBehaviour
             if(Physics.Raycast(ray, out hit, weaponMaxDistance))
             {
                 hitObject = hit.collider.gameObject;
-                if(hitObject.CompareTag("PlayerDamage"))
+                if(hitObject.CompareTag("Enemy"))
                 {
                     hitObject.SetActive(false);
                 }
@@ -372,7 +407,7 @@ public class PlayerManager : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if ((other.gameObject.CompareTag("PlayerDamage")))
+        if (other.CompareTag("Enemy"))
         {
             //transform.position = Vector3.zero;
             WeaponChangeSoundOn();
