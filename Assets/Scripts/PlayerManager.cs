@@ -81,6 +81,13 @@ public class PlayerManager : MonoBehaviour
 
     private float shotGunFireDelay = 0.5f;
 
+    public float attackPower = 2.0f;
+
+    public int holdBullet = 0;
+    public int reloadBullet = 0;
+    public int maxBullet = 0;
+
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -166,6 +173,35 @@ public class PlayerManager : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         aimTarget.position = ray.GetPoint(10.0f);
     }
+
+    void DebugBox(Vector3 origin, Vector3 direction)
+    {
+        Vector3 endPoint = origin + direction * castDistance;
+
+        Vector3[] corners = new Vector3[8];
+        corners[0] = origin + new Vector3(-boxSize.x, -boxSize.y, -boxSize.z) / 2;
+        corners[1] = origin + new Vector3(boxSize.x, -boxSize.y, -boxSize.z) / 2;
+        corners[2] = origin + new Vector3(-boxSize.x, boxSize.y, -boxSize.z) / 2;
+        corners[3] = origin + new Vector3(boxSize.x, boxSize.y, -boxSize.z) / 2;
+        corners[4] = origin + new Vector3(-boxSize.x, -boxSize.y, boxSize.z) / 2;
+        corners[5] = origin + new Vector3(boxSize.x, -boxSize.y, boxSize.z) / 2;
+        corners[6] = origin + new Vector3(-boxSize.x, boxSize.y, boxSize.z) / 2;
+        corners[7] = origin + new Vector3(boxSize.x, boxSize.y, boxSize.z) / 2;
+
+        Debug.DrawLine(corners[0], corners[1], Color.green, 3.0f);
+        Debug.DrawLine(corners[1], corners[3], Color.green, 3.0f);
+        Debug.DrawLine(corners[3], corners[2], Color.green, 3.0f);
+        Debug.DrawLine(corners[2], corners[0], Color.green, 3.0f);
+        Debug.DrawLine(corners[4], corners[5], Color.green, 3.0f);
+        Debug.DrawLine(corners[5], corners[7], Color.green, 3.0f);
+        Debug.DrawLine(corners[7], corners[6], Color.green, 3.0f);
+        Debug.DrawLine(corners[6], corners[4], Color.green, 3.0f);
+        Debug.DrawLine(corners[0], corners[4], Color.green, 3.0f);
+        Debug.DrawLine(corners[1], corners[5], Color.green, 3.0f);
+        Debug.DrawLine(corners[2], corners[6], Color.green, 3.0f);
+        Debug.DrawLine(corners[3], corners[7], Color.green, 3.0f);
+        Debug.DrawRay(origin, direction * castDistance, Color.green);
+    }
     private void ItemPickUP()
     {
         if (Input.GetKeyDown(KeyCode.E))
@@ -187,6 +223,7 @@ public class PlayerManager : MonoBehaviour
     {
         Vector3 origin = itemGetPos.position; //player pivot이 발끝이라 따로 지정
         Vector3 direction = itemGetPos.forward;
+        DebugBox(origin, direction);
         RaycastHit[] hits;
         hits = Physics.BoxCastAll(origin, boxSize / 2, direction, Quaternion.identity, castDistance, itemLayer);
         foreach (RaycastHit hit in hits)
@@ -262,6 +299,11 @@ public class PlayerManager : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(1)) //조준해서 줌하기
             {
+                if(isCrouching)
+                {
+                    characterController.height = 1.3f;
+                }
+
                 isAim = true;
                 multiAimConstraint.data.offset = new Vector3(-30, 0, 0);
                 animator.SetLayerWeight(1, 1); //첫번째 레이어 값을 1로 바꿔라(활성화)
@@ -284,6 +326,7 @@ public class PlayerManager : MonoBehaviour
             }
             if (Input.GetMouseButtonUp(1)) //돌아오기 
             {
+                characterController.height = 1.9f;
                 if (zoomCoroutine != null)
                 {
                     StopCoroutine(zoomCoroutine); //실행중인 코루틴 있으면 멈춤
@@ -355,7 +398,8 @@ public class PlayerManager : MonoBehaviour
                 hitObject = hit.collider.gameObject;
                 if(hitObject.CompareTag("Enemy"))
                 {
-                    hitObject.SetActive(false);
+                    StartCoroutine(hitObject.GetComponent<ZombieManager>()?.TakeDamage(attackPower));
+                    
                 }
                 
                 Debug.DrawLine(ray.origin, hit.point, Color.red, 2.0f);
@@ -491,5 +535,10 @@ public class PlayerManager : MonoBehaviour
             transform.position = Vector3.zero;
             transform.gameObject.GetComponent<CharacterController>().enabled = true;
         }
+    }
+
+    private void ChangeCharacterHeight()
+    {
+        characterController.height = 1.3f;
     }
 }
