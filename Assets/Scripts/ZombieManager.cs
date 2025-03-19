@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 public enum EZombieState
 {
@@ -22,7 +23,7 @@ public class ZombieManager : MonoBehaviour
     public Transform[] patrolPoints; //순찰 경로 지점들
     private int currentPoint = 0; //현재 순찰 경로 지점 인덱스
     public float moveSpeed = 2.0f; //이동 속도
-    private float trackingRange = 5.0f; //추적 범위 설정
+    public float trackingRange = 5.0f; //추적 범위 설정
     private bool isAttack = false; //공격 상태
     private float evadeRange = 5.0f; //도망 상태 회피 거리
     public float zombieHp = 10.0f;
@@ -38,6 +39,8 @@ public class ZombieManager : MonoBehaviour
     public AudioClip audioClipAttack;
     public AudioClip audioClipDamage;
 
+    private NavMeshAgent agent;
+
     private void Update()
     {
         //distanceToTarget = Vector3.Distance(transform.position, target.position);
@@ -49,6 +52,7 @@ public class ZombieManager : MonoBehaviour
 
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+        agent = GetComponent<NavMeshAgent>();
 
         ChangeState(currentState);
     }
@@ -116,6 +120,10 @@ public class ZombieManager : MonoBehaviour
 
         while (currentState == EZombieState.Idle)
         {
+            agent.isStopped = true;
+
+            animator.SetBool("isRun", false);
+
             float distance = Vector3.Distance(transform.position, target.position);
 
             if (distance < trackingRange)
@@ -132,6 +140,7 @@ public class ZombieManager : MonoBehaviour
 
     private IEnumerator Patrol()
     {
+        
         Debug.Log(gameObject.name + " : 순찰 중");
         audioSource.PlayOneShot(audioClipIdle);
         while (currentState == EZombieState.Patrol)
@@ -139,12 +148,14 @@ public class ZombieManager : MonoBehaviour
             if (patrolPoints.Length > 0)
             {
                 animator.SetBool("isRun", true);
-                
 
                 Transform targetPoint = patrolPoints[currentPoint];
                 Vector3 direction = targetPoint.position - transform.position;
-                transform.position += direction.normalized * moveSpeed * Time.deltaTime;
-                transform.LookAt(targetPoint.transform);
+                
+                agent.isStopped = false;
+                agent.speed = moveSpeed;
+                agent.destination = targetPoint.position;
+                
 
                 if (Vector3.Distance(transform.position, targetPoint.position) < 0.3f)
                 {
@@ -154,7 +165,7 @@ public class ZombieManager : MonoBehaviour
                 float distance = Vector3.Distance(transform.position, target.position);
                 if (distance < trackingRange)
                 {
-                    animator.SetBool("isRun", false);
+                    
                     ChangeState(EZombieState.Chase);
                 }
                 /*else if (distance < attackRange)
@@ -179,18 +190,20 @@ public class ZombieManager : MonoBehaviour
             float distance = Vector3.Distance(transform.position, target.position);
 
             Vector3 direction = target.position - transform.position;
-            transform.position += direction.normalized * moveSpeed * Time.deltaTime;
-            transform.LookAt(target.transform);
+            //transform.position += direction.normalized * moveSpeed * Time.deltaTime;
+            //transform.LookAt(target.transform);
+
+            agent.speed = moveSpeed;
+            agent.isStopped = false; 
+                                                                                                                                                                
 
             if (distance > trackingRange)
             {
-                animator.SetBool("isRun", false);
                 ChangeState(EZombieState.Idle);
             }
 
             if (distance < attackRange)
             {
-                animator.SetBool("isRun", false);
                 ChangeState(EZombieState.Attack);
             }
             /*if(distance < evadeRange)
@@ -204,9 +217,11 @@ public class ZombieManager : MonoBehaviour
     private IEnumerator Attack()
     {
         Debug.Log(gameObject.name + " : 공격하는 중");
-        transform.LookAt(target);
+        //transform.LookAt(target);
         animator.SetTrigger("Attack");
         audioSource.PlayOneShot(audioClipAttack);
+
+        //agent.isStopped = true;
 
         yield return new WaitForSeconds(attackDelay);
 
@@ -224,32 +239,40 @@ public class ZombieManager : MonoBehaviour
     private IEnumerator Evade()
     {
         Debug.Log(gameObject.name + " : 도망가는 중");
-        animator.SetBool("isRun", true);
 
         Vector3 evadeDirection = (transform.position - target.position).normalized;
         float evadeTime = 3.0f;
         float timer = 0.0f;
 
         //타겟을 바라보고 가는 것이 아니라 방향을 지정해서 가는 것이라 LookAt함수 사용X
-        Quaternion targetRotation = Quaternion.LookRotation(evadeDirection); 
-        transform.rotation = targetRotation;
+        //Quaternion targetRotation = Quaternion.LookRotation(evadeDirection); 
+        //transform.rotation = targetRotation;
 
         while (currentState == EZombieState.Evade && timer < evadeTime)
         {
-            transform.position += evadeDirection * moveSpeed * Time.deltaTime;
+            animator.SetBool("isRun", true);
+
+            //transform.position += evadeDirection * moveSpeed * Time.deltaTime;
             timer += Time.deltaTime;
+
+            agent.speed = moveSpeed;
+            agent.isStopped = false;
+            agent.destination = evadeDirection;
+
             yield return null;
         }
 
         ChangeState(EZombieState.Idle);
     }
 
-    public IEnumerator TakeDamage(float damage)
+    public IEnumerator TakeDamage(float damage) //매개변수 추가해서 부위별 데미지 가능 
     {
         Debug.Log(gameObject.name + " : 아야");
         animator.SetTrigger("Damage");
         audioSource.PlayOneShot(audioClipDamage);
         zombieHp -= damage;
+
+        agent.isStopped = true;
 
         if(zombieHp <= 0)
         {
@@ -263,10 +286,12 @@ public class ZombieManager : MonoBehaviour
     }
     private IEnumerator Die()
     {
+        agent.isStopped = true;
+
         Debug.Log(gameObject.name + " : 죽음");
         animator.SetTrigger("Die");
         
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(6f);
         gameObject.SetActive(false);
     }
 }

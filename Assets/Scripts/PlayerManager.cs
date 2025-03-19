@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Animations.Rigging; //nameSpace : 소속
-
+using UnityEngine.UI;
 public class PlayerManager : MonoBehaviour
 {
     public float moveSpeed = 5.0f; //플레이어 이동 속도
@@ -83,11 +83,21 @@ public class PlayerManager : MonoBehaviour
 
     public float attackPower = 2.0f;
 
-    public int holdBullet = 0;
-    public int reloadBullet = 0;
-    public int maxBullet = 0;
+    public Text bulletText;
+    private int fireBulletCount;
+    private int saveBulletCount;
+    public AudioClip audioClipEmptyTrigger;
+    public AudioClip audioClipReload;
 
+    public ParticleSystem DamageParticleSystem;
+    // public AudioClip audioClipDamage;
 
+    public GameObject flashLightObj;
+    private bool isFlashLightOn = false;
+    public AudioClip audioClipFlash;
+
+    public int playerHP;
+    public AudioClip audioClipPlayerDamaged;
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -106,6 +116,15 @@ public class PlayerManager : MonoBehaviour
 
         crosshairObj.SetActive(false);
         weaponIcon.SetActive(false);
+
+        bulletText.gameObject.SetActive(false);
+        fireBulletCount = 5;
+        saveBulletCount = 2;
+        bulletText.text = fireBulletCount + "/" + saveBulletCount;
+
+        flashLightObj.SetActive(false);
+
+        playerHP = 100;
     }
 
     void Update()
@@ -130,7 +149,44 @@ public class PlayerManager : MonoBehaviour
         }*/
         AnimationSet();
         Crouch();
+        Reload();
+        ActionFlashLight();
     }
+
+    void ActionFlashLight()
+    {
+        if (Input.GetKeyUp(KeyCode.T))
+        {
+            isFlashLightOn = !isFlashLightOn;
+            flashLightObj.SetActive(isFlashLightOn);
+
+            audioSource.PlayOneShot(audioClipFlash);
+        }
+    }
+    void Reload()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        { 
+            int cnt = 5 - fireBulletCount; //장전해야하는개수 
+            if (cnt < saveBulletCount) 
+            {
+                fireBulletCount += cnt;
+                saveBulletCount -= cnt;
+            }
+            else
+            {
+                fireBulletCount += saveBulletCount;
+                saveBulletCount = 0;
+            }
+
+            bulletText.text = fireBulletCount + "/" + saveBulletCount;
+            audioSource.PlayOneShot(audioClipReload);
+            animator.SetTrigger("Reload");
+        }
+            
+    }
+
+
 
     void AnimationSet()
     {
@@ -206,7 +262,7 @@ public class PlayerManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            animator.speed = 2;
+            animator.speed = 1.5f;
             animator.SetTrigger("PickUp");
             audioSource.PlayOneShot(audioClipItemPickUp);
 
@@ -233,6 +289,18 @@ public class PlayerManager : MonoBehaviour
                 hit.collider.gameObject.SetActive(false);
                 isWeaponGet = true;
                 weaponIcon.SetActive(true);
+                bulletText.gameObject.SetActive(true);
+            }
+
+            if(hit.collider.gameObject.CompareTag("Bullet"))
+            {
+                hit.collider.gameObject.SetActive(false);
+                saveBulletCount += 30;
+                if(saveBulletCount > 120)
+                {
+                    saveBulletCount = 120;
+                }
+                bulletText.text = fireBulletCount + "/" + saveBulletCount;
             }
         }
     }
@@ -369,6 +437,18 @@ public class PlayerManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0) && isAim && !isFire)
         {
+            if (fireBulletCount > 0)
+            {
+                fireBulletCount--;
+                bulletText.text = fireBulletCount + "/" + saveBulletCount;
+            }
+            else
+            {
+                //재장전
+                //총알이 없는 소리 재생 및 리턴
+                audioSource.PlayOneShot(audioClipEmptyTrigger);
+                return;
+            }
             //총 종류에 따른 사정거리 설정
             weaponMaxDistance = 1000.0f;
 
@@ -398,6 +478,10 @@ public class PlayerManager : MonoBehaviour
                 hitObject = hit.collider.gameObject;
                 if(hitObject.CompareTag("Enemy"))
                 {
+                    ParticleSystem particle = Instantiate(DamageParticleSystem, hit.point,Quaternion.identity);
+
+                    particle.Play();
+                    //audioSource.PlayOneShot(audioClipDamage);
                     StartCoroutine(hitObject.GetComponent<ZombieManager>()?.TakeDamage(attackPower));
                     
                 }
@@ -522,10 +606,9 @@ public class PlayerManager : MonoBehaviour
         audioSource.PlayOneShot(audioClipFire);
         shotGunEffect.Play();
     }
-
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Enemy"))
+        /*if (other.CompareTag("Enemy"))
         {
             //transform.position = Vector3.zero;
             WeaponChangeSoundOn();
@@ -534,6 +617,17 @@ public class PlayerManager : MonoBehaviour
             transform.gameObject.GetComponent<CharacterController>().enabled = false;
             transform.position = Vector3.zero;
             transform.gameObject.GetComponent<CharacterController>().enabled = true;
+        }*/
+        if(other.CompareTag("PlayerDamage"))
+        {
+            transform.gameObject.GetComponent<CharacterController>().enabled = false;
+            transform.position = new Vector3(transform.position.x - 1, transform.position.y, transform.position.z-1);
+            transform.gameObject.GetComponent<CharacterController>().enabled = true;
+
+            animator.SetTrigger("Damage");
+            playerHP -= 10;
+            audioSource.PlayOneShot(audioClipPlayerDamaged);
+            other.gameObject.SetActive(false);
         }
     }
 
