@@ -3,8 +3,11 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Animations.Rigging; //nameSpace : 소속
 using UnityEngine.UI;
-public class PlayerManager : MonoBehaviour
+
+public class PlayerManager : Singleton<PlayerManager>
 {
+    public HPScriptableObject hpManager;
+
     public float moveSpeed = 5.0f; //플레이어 이동 속도
     public float mouseSensitivity = 100.0f;//마우스 감도
     public Transform cameraTransform; //카메라 트랜스폼
@@ -49,10 +52,6 @@ public class PlayerManager : MonoBehaviour
     private bool isAim = false;
     private bool isFire = false;
 
-    public AudioClip audioClipFire;
-    private AudioSource audioSource;
-    public AudioClip audioClipWeaponChange;
-    public AudioClip audioClipItemPickUp;
     public GameObject shotGunObj;
 
     private int animationSpeed = 1;
@@ -86,18 +85,21 @@ public class PlayerManager : MonoBehaviour
     public Text bulletText;
     private int fireBulletCount;
     private int saveBulletCount;
-    public AudioClip audioClipEmptyTrigger;
-    public AudioClip audioClipReload;
 
     public ParticleSystem DamageParticleSystem;
-    // public AudioClip audioClipDamage;
 
     public GameObject flashLightObj;
     private bool isFlashLightOn = false;
     public AudioClip audioClipFlash;
 
     public int playerHP;
-    public AudioClip audioClipPlayerDamaged;
+
+    public GameObject PauseObj;
+    private bool isPause = false;
+    public AudioClip audioClipPause;
+
+    public GameObject handPos;
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -107,7 +109,6 @@ public class PlayerManager : MonoBehaviour
         mainCamera = cameraTransform.GetComponent<Camera>();
         mainCamera.fieldOfView = defaultFov;
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
         shotGunObj.SetActive(false);
 
         animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
@@ -137,22 +138,49 @@ public class PlayerManager : MonoBehaviour
 
         ItemPickUP();
 
-        /*animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-        if (animatorStateInfo.IsName("TakingItem"))
-        {
-            if (animatorStateInfo.normalizedTime >= 1.0f)
-            {
-                Debug.Log("속도 바꾸기");
-                animator.speed = 1;
-            }
-        }*/
         AnimationSet();
         Crouch();
         Reload();
         ActionFlashLight();
+
+        PauseMenu();
     }
 
+    void PauseMenu()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            SoundManager.Instance.PlaySFX("UIButton");
+            isPause = !isPause;
+            if (isPause)
+            {
+                Pause();
+            }
+            else
+            {
+                ReGame();
+            }
+        }
+    }
+
+    public void ReGame()
+    {
+        PauseObj.SetActive(false);
+        Time.timeScale = 1; //게임 시간 재개 
+
+    }
+    void Pause()
+    {
+        PauseObj.SetActive(true);
+        Time.timeScale = 0; //게임 시간 정지
+    }
+
+    public void Exit()
+    {
+        PauseObj.SetActive(false);
+        Time.timeScale = 1; //게임 시간 재개 
+        Application.Quit();
+    }
     void ActionFlashLight()
     {
         if (Input.GetKeyUp(KeyCode.T))
@@ -160,7 +188,8 @@ public class PlayerManager : MonoBehaviour
             isFlashLightOn = !isFlashLightOn;
             flashLightObj.SetActive(isFlashLightOn);
 
-            audioSource.PlayOneShot(audioClipFlash);
+            SoundManager.Instance.PlaySFX("FlashOn", flashLightObj.transform.position);
+
         }
     }
     void Reload()
@@ -180,7 +209,7 @@ public class PlayerManager : MonoBehaviour
             }
 
             bulletText.text = fireBulletCount + "/" + saveBulletCount;
-            audioSource.PlayOneShot(audioClipReload);
+            SoundManager.Instance.PlaySFX("ShotGunLoad", transform.position);
             animator.SetTrigger("Reload");
         }
             
@@ -204,13 +233,6 @@ public class PlayerManager : MonoBehaviour
                 isCrouching = true;
                 animator.SetBool("isCrouching", isCrouching);
                 moveSpeed = crouchSpeed;
-                /*animator.SetTrigger("Crouch");
-                animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-                if(animatorStateInfo.IsName("ToCrouched") && animatorStateInfo.normalizedTime >= 1.0f)
-                {
-                    animator.SetBool("isCrouching", isCrouching);
-                }*/
-
             }
             else
             {
@@ -264,9 +286,7 @@ public class PlayerManager : MonoBehaviour
         {
             animator.speed = 1.5f;
             animator.SetTrigger("PickUp");
-            audioSource.PlayOneShot(audioClipItemPickUp);
-
-            //isPickingUP = true;
+            SoundManager.Instance.PlaySFX("ItemPickUP", transform.position);
         }
     }
 
@@ -294,7 +314,8 @@ public class PlayerManager : MonoBehaviour
 
             if(hit.collider.gameObject.CompareTag("Bullet"))
             {
-                hit.collider.gameObject.SetActive(false);
+                hit.collider.transform.SetParent(handPos.transform);
+                //hit.collider.gameObject.SetActive(false);
                 saveBulletCount += 30;
                 if(saveBulletCount > 120)
                 {
@@ -446,7 +467,7 @@ public class PlayerManager : MonoBehaviour
             {
                 //재장전
                 //총알이 없는 소리 재생 및 리턴
-                audioSource.PlayOneShot(audioClipEmptyTrigger);
+                SoundManager.Instance.PlaySFX("EmpthyTrigger", transform.position);
                 return;
             }
             //총 종류에 따른 사정거리 설정
@@ -597,36 +618,27 @@ public class PlayerManager : MonoBehaviour
 
     public void WeaponChangeSoundOn()
     {
-        Debug.Log("무기바꾸기사운드출력");
-        audioSource.PlayOneShot(audioClipWeaponChange);
+        SoundManager.Instance.PlaySFX("ItemPickUP", transform.position);
     }
 
     public void ShootingGunSoundOn()
     {
-        audioSource.PlayOneShot(audioClipFire);
+        SoundManager.Instance.PlaySFX("ShotGunShoot", transform.position);
         shotGunEffect.Play();
     }
     private void OnTriggerEnter(Collider other)
     {
-        /*if (other.CompareTag("Enemy"))
-        {
-            //transform.position = Vector3.zero;
-            WeaponChangeSoundOn();
-            animator.SetTrigger("Damage");
-
-            transform.gameObject.GetComponent<CharacterController>().enabled = false;
-            transform.position = Vector3.zero;
-            transform.gameObject.GetComponent<CharacterController>().enabled = true;
-        }*/
         if(other.CompareTag("PlayerDamage"))
         {
+            hpManager.DecreaseHealth(10);
+
             transform.gameObject.GetComponent<CharacterController>().enabled = false;
             transform.position = new Vector3(transform.position.x - 1, transform.position.y, transform.position.z-1);
             transform.gameObject.GetComponent<CharacterController>().enabled = true;
 
             animator.SetTrigger("Damage");
             playerHP -= 10;
-            audioSource.PlayOneShot(audioClipPlayerDamaged);
+            SoundManager.Instance.PlaySFX("PlayerDamaged");
             other.gameObject.SetActive(false);
         }
     }
