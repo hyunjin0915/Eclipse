@@ -108,7 +108,6 @@ public class PlayerManager : Singleton<PlayerManager>
 
     private RaycastHit[] currentHitItems;
     private bool isPotionHold = false;
-    private GameObject holdPotion;
 
     void Start()
     {
@@ -306,9 +305,11 @@ public class PlayerManager : Singleton<PlayerManager>
             SoundManager.Instance.PlaySFX("ItemPickUP", transform.position);
         }
     }
-    
+    GameObject holdPotion;
     private void CheckTree()
     {
+        //GameObject holdPotion = null;
+
         if(Input.GetKeyDown(KeyCode.Space))
         {
             if(!isPotionHold)
@@ -320,36 +321,38 @@ public class PlayerManager : Singleton<PlayerManager>
                 currentHitItems = Physics.BoxCastAll(origin, boxSize / 2, direction, Quaternion.identity, castDistance, itemLayer);
 
                 bool isTreeForward = false;
+                
+
                 foreach (RaycastHit hit in currentHitItems)
                 {
                     if (hit.collider.gameObject.CompareTag("Tree"))
                     {
                         isTreeForward = true;
                     }
-                    if (isTreeForward && hit.collider.gameObject.CompareTag("Eatable"))
+                    if(hit.collider.gameObject.CompareTag("Eatable"))
                     {
-                        Debug.Log(hit.collider.gameObject.name);
-                        animator.SetTrigger("Jump");
-                        holdPotion = hit.collider.gameObject;
                         isPotionHold = true;
-                        holdPotion.transform.SetParent(handPos.transform);
-                        holdPotion.transform.localPosition = new Vector3(0.3f, -0.1f, 0.1f);
+                        holdPotion = hit.collider.gameObject;
+
                     }
+                }
+                if(isTreeForward && isPotionHold)
+                {
+                    animator.SetTrigger("Jump");
+                    holdPotion.transform.SetParent(handPos.transform);
+                    holdPotion.transform.localPosition = new Vector3(0.3f, -0.1f, 0.1f);
                 }
                 isTreeForward = false ;
             }
             else
             {
-                //먹는 애니 재생 - 거기에 EatPotion 함수 실행
+                SoundManager.Instance.PlaySFX("Eating");
+                holdPotion.SetActive(false);
+                hpManager.IncreaseHealth(10);
+                isPotionHold =false;
             }
             
         }
-    }
-
-    public void EatPotion()
-    {
-        holdPotion.SetActive(false);
-        hpManager.IncreaseHealth(10);
     }
 
     private void ChangeAnimatorSpeed()
