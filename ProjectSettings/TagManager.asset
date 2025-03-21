@@ -9,6 +9,8 @@ TagManager:
   - Enemy
   - Weapon
   - Bullet
+  - Eatable
+  - Tree
   layers:
   - Default
   - TransparentFX

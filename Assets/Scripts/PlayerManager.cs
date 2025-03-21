@@ -1,8 +1,15 @@
-using System;
+//using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Animations.Rigging; //nameSpace : 소속
 using UnityEngine.UI;
+using static UnityEngine.UI.Image;
+
+public enum WeaponMode
+{
+    Rifle,
+    ShotGun
+}
 
 public class PlayerManager : Singleton<PlayerManager>
 {
@@ -76,7 +83,8 @@ public class PlayerManager : Singleton<PlayerManager>
     public GameObject weaponIcon;
     private bool isWeponHold = false;
 
-    public ParticleSystem shotGunEffect;
+    //public ParticleSystem shotGunEffect;
+    public GameObject shotGunPoint;
 
     private float shotGunFireDelay = 0.5f;
 
@@ -86,11 +94,9 @@ public class PlayerManager : Singleton<PlayerManager>
     private int fireBulletCount;
     private int saveBulletCount;
 
-    public ParticleSystem DamageParticleSystem;
 
     public GameObject flashLightObj;
     private bool isFlashLightOn = false;
-    public AudioClip audioClipFlash;
 
     public int playerHP;
 
@@ -99,6 +105,10 @@ public class PlayerManager : Singleton<PlayerManager>
     public AudioClip audioClipPause;
 
     public GameObject handPos;
+
+    private RaycastHit[] currentHitItems;
+    private bool isPotionHold = false;
+    private GameObject holdPotion;
 
     void Start()
     {
@@ -144,7 +154,9 @@ public class PlayerManager : Singleton<PlayerManager>
         ActionFlashLight();
 
         PauseMenu();
+        CheckTree();
     }
+
 
     void PauseMenu()
     {
@@ -285,9 +297,59 @@ public class PlayerManager : Singleton<PlayerManager>
         if (Input.GetKeyDown(KeyCode.E))
         {
             animator.speed = 1.5f;
+            Vector3 origin = itemGetPos.position; //player pivot이 발끝이라 따로 지정
+            Vector3 direction = itemGetPos.forward;
+            DebugBox(origin, direction);
+            currentHitItems = Physics.BoxCastAll(origin, boxSize / 2, direction, Quaternion.identity, castDistance, itemLayer);
+
             animator.SetTrigger("PickUp");
             SoundManager.Instance.PlaySFX("ItemPickUP", transform.position);
         }
+    }
+    
+    private void CheckTree()
+    {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            if(!isPotionHold)
+            {
+                Vector3 origin = playerHead.position; //player pivot이 발끝이라 따로 지정
+                Vector3 direction = itemGetPos.forward;
+                DebugBox(origin, direction);
+
+                currentHitItems = Physics.BoxCastAll(origin, boxSize / 2, direction, Quaternion.identity, castDistance, itemLayer);
+
+                bool isTreeForward = false;
+                foreach (RaycastHit hit in currentHitItems)
+                {
+                    if (hit.collider.gameObject.CompareTag("Tree"))
+                    {
+                        isTreeForward = true;
+                    }
+                    if (isTreeForward && hit.collider.gameObject.CompareTag("Eatable"))
+                    {
+                        Debug.Log(hit.collider.gameObject.name);
+                        animator.SetTrigger("Jump");
+                        holdPotion = hit.collider.gameObject;
+                        isPotionHold = true;
+                        holdPotion.transform.SetParent(handPos.transform);
+                        holdPotion.transform.localPosition = new Vector3(0.3f, -0.1f, 0.1f);
+                    }
+                }
+                isTreeForward = false ;
+            }
+            else
+            {
+                //먹는 애니 재생 - 거기에 EatPotion 함수 실행
+            }
+            
+        }
+    }
+
+    public void EatPotion()
+    {
+        holdPotion.SetActive(false);
+        hpManager.IncreaseHealth(10);
     }
 
     private void ChangeAnimatorSpeed()
@@ -297,12 +359,8 @@ public class PlayerManager : Singleton<PlayerManager>
 
     void ItemInActive()
     {
-        Vector3 origin = itemGetPos.position; //player pivot이 발끝이라 따로 지정
-        Vector3 direction = itemGetPos.forward;
-        DebugBox(origin, direction);
-        RaycastHit[] hits;
-        hits = Physics.BoxCastAll(origin, boxSize / 2, direction, Quaternion.identity, castDistance, itemLayer);
-        foreach (RaycastHit hit in hits)
+       
+        foreach (RaycastHit hit in currentHitItems)
         {
             if (hit.collider.gameObject.CompareTag("Weapon"))
             {
@@ -322,6 +380,23 @@ public class PlayerManager : Singleton<PlayerManager>
                     saveBulletCount = 120;
                 }
                 bulletText.text = fireBulletCount + "/" + saveBulletCount;
+            }
+
+            if(hit.collider.gameObject.name == "Door")
+            {
+                if(hit.collider.GetComponent<DoorManager>().isOpen)
+                {
+                    hit.collider.GetComponent<Animator>().SetTrigger("OpenBackward");
+
+                    hit.collider.GetComponent<DoorManager>().isOpen = false;
+                }
+                else
+                {
+                    hit.collider.GetComponent<Animator>().SetTrigger("OpenForward");
+
+                    hit.collider.GetComponent<DoorManager>().isOpen = true;
+
+                }
             }
         }
     }
@@ -499,10 +574,11 @@ public class PlayerManager : Singleton<PlayerManager>
                 hitObject = hit.collider.gameObject;
                 if(hitObject.CompareTag("Enemy"))
                 {
-                    ParticleSystem particle = Instantiate(DamageParticleSystem, hit.point,Quaternion.identity);
+                    ParticleManager.Instance.PlayParticle(ParticleType.Explosion, hit.point);
+                    /*ParticleSystem particle = Instantiate(DamageParticleSystem, hit.point,Quaternion.identity);
 
                     particle.Play();
-                    //audioSource.PlayOneShot(audioClipDamage);
+                    //audioSource.PlayOneShot(audioClipDamage);*/
                     StartCoroutine(hitObject.GetComponent<ZombieManager>()?.TakeDamage(attackPower));
                     
                 }
@@ -517,10 +593,6 @@ public class PlayerManager : Singleton<PlayerManager>
 
         }
 
-        /*if (Input.GetMouseButtonUp(0))
-        {
-            isFire = false;
-        }*/
     }
 
     private IEnumerator FireWithDealy(float fireDelay)
@@ -624,7 +696,8 @@ public class PlayerManager : Singleton<PlayerManager>
     public void ShootingGunSoundOn()
     {
         SoundManager.Instance.PlaySFX("ShotGunShoot", transform.position);
-        shotGunEffect.Play();
+        ParticleManager.Instance.PlayParticle(ParticleType.WeaponFire, shotGunPoint.transform.position);
+        //shotGunEffect.Play();
     }
     private void OnTriggerEnter(Collider other)
     {

@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/MenuScene.unity
     guid: 3a3639ffa80d16c4cbd68c402cd511e3
   - enabled: 1
-    path: Assets/Scenes/TutorialScene 1.unity
+    path: Assets/Scenes/Stage1.unity
     guid: 01a5497eb202d0d4a989ff346507a915
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9e7be553448fa2546aea5752021cbcf7, type: 2}

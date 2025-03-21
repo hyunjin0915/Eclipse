@@ -16,7 +16,7 @@ public class MenuManager : MonoBehaviour
         SoundManager.Instance.StopBGM();
         SoundManager.Instance.PlaySFX("UIButton");
         //audioSource.PlayOneShot(audioClipClicked);
-        SceneController.Instance.LoadScene("TutorialScene");
+        SceneController.Instance.LoadScene("Stage1");
         //SceneManager.LoadSceneAsync("TutorialScene",LoadSceneMode.Single);
     }
 
