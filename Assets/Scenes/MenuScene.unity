@@ -640,6 +640,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 87881ace4711d7d49a10056f00725361, type: 3}
   - name: Eating
     clip: {fileID: 8300000, guid: 9e3e96baada13cb44ad3e8e11e9a07de, type: 3}
+  - name: HeliPass
+    clip: {fileID: 8300000, guid: 9df8ce4db1aa8a447b3c85f7f6721fa0, type: 3}
 --- !u!4 &460688003
 Transform:
   m_ObjectHideFlags: 0
