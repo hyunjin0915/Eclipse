@@ -123,7 +123,7 @@ public class PlayerManager : Singleton<PlayerManager>
         ActionFlashLight();
 
         PauseMenu();
-        CheckTree();
+        SpaceInteraction();
     }
 
 
@@ -271,7 +271,7 @@ public class PlayerManager : Singleton<PlayerManager>
         }
     }
     GameObject holdPotion;
-    private void CheckTree()
+    private void SpaceInteraction()
     {
         //GameObject holdPotion = null;
 
@@ -300,7 +300,13 @@ public class PlayerManager : Singleton<PlayerManager>
                         holdPotion = hit.collider.gameObject;
 
                     }
+                    if(hit.collider.gameObject.CompareTag("SuppliesBox"))
+                    {
+                        //보급품 열면...
+                        Debug.Log("보급품");
+                    }
                 }
+                
                 if(isTreeForward && isPotionHold)
                 {
                     animator.SetTrigger("Jump");
@@ -308,6 +314,7 @@ public class PlayerManager : Singleton<PlayerManager>
                     holdPotion.transform.localPosition = new Vector3(0.3f, -0.1f, 0.1f);
                 }
                 isTreeForward = false ;
+                
             }
             else
             {

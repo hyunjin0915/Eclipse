@@ -19,5 +19,6 @@ public class SuppliesTrigger : MonoBehaviour
     {
         yield return new WaitForSeconds(3f);
         SuppliesBox.SetActive(true);
+        gameObject.SetActive(false);
     }
 }
