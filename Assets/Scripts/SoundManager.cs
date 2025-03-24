@@ -75,6 +75,9 @@ public class SoundManager : Singleton<SoundManager>
         {
             AudioSource.PlayClipAtPoint(DicsfxClips[name], position);
         }
+        else{
+            Debug.Log("클립 못 찾음");
+        }
     }
     public void PlaySFX(string name) //메뉴 같은 거 효과음
     {

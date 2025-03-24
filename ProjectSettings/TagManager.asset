@@ -11,6 +11,7 @@ TagManager:
   - Bullet
   - Eatable
   - Tree
+  - SuppliesBox
   layers:
   - Default
   - TransparentFX
