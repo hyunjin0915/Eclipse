@@ -1,6 +1,7 @@
 //using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public enum WeaponMode
@@ -11,6 +12,7 @@ public enum WeaponMode
 
 public class PlayerManager : Singleton<PlayerManager>
 {
+    public bool lastOpenedForward = false;
     public Transform playerHead;//플레이어 머리 위치 - 1인칭 모드를 위해
 
     public HPScriptableObject hpManager;
@@ -89,7 +91,7 @@ public class PlayerManager : Singleton<PlayerManager>
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
         mainCamera = CameraManager.Instance.mainCamera.transform;
         animator = GetComponent<Animator>();
         shotGunObj.SetActive(false);
@@ -359,19 +361,30 @@ public class PlayerManager : Singleton<PlayerManager>
 
             if(hit.collider.gameObject.name == "Door")
             {
-                if(hit.collider.GetComponent<DoorManager>().isOpen)
+                DoorManager doorManager = hit.collider.GetComponent<DoorManager>();
+                if (doorManager != null)
                 {
-                    hit.collider.GetComponent<Animator>().SetTrigger("OpenBackward");
-
-                    hit.collider.GetComponent<DoorManager>().isOpen = false;
+                    if (doorManager.isOpen)
+                    {
+                        if(lastOpenedForward)
+                        {
+                            doorManager.CloseForward(transform);
+                        }
+                        else
+                        {
+                            doorManager.CloseBackward(transform);
+                        }
+                    }
+                    else
+                    {
+                        if(doorManager.Open(transform))
+                        {
+                            lastOpenedForward = doorManager.LastOpenedForward;
+                        }
+                    }
+                    return;
                 }
-                else
-                {
-                    hit.collider.GetComponent<Animator>().SetTrigger("OpenForward");
 
-                    hit.collider.GetComponent<DoorManager>().isOpen = true;
-
-                }
             }
         }
     }
@@ -555,5 +568,11 @@ public class PlayerManager : Singleton<PlayerManager>
         SoundManager.Instance.PlaySFX("ShotGunShoot", transform.position);
         ParticleManager.Instance.PlayParticle(ParticleType.WeaponFire, shotGunPoint.transform.position);
         //shotGunEffect.Play();
+    }
+
+    //씬이 로드될 때 호출되는 함수 
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log("Load Scene : " + scene.name);
     }
 }

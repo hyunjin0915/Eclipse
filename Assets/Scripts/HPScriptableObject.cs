@@ -6,7 +6,7 @@ using UnityEngine.Events;
 public class HPScriptableObject : ScriptableObject
 {
     public int health = 0;
-
+    public bool isHelathDecreas = false;
     [SerializeField]
     public int maxHealth = 100;
 
@@ -24,6 +24,7 @@ public class HPScriptableObject : ScriptableObject
     public void DecreaseHealth(int amount)
     {
         health -= amount;
+        isHelathDecreas = true;
         hpChangeAction.Invoke();
         if(health < 0)
         {
@@ -34,6 +35,7 @@ public class HPScriptableObject : ScriptableObject
     public void IncreaseHealth(int amount)
     {
         health += amount;
+        isHelathDecreas = false;
         hpChangeAction.Invoke();
         if (health > maxHealth) //최대 체력을 넘기면
         {

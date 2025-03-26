@@ -84,9 +84,11 @@ public class NetworkManager : Singleton<NetworkManager>
                 playerData.user_id = idUI.text;
                 playerData.user_name = recvPacket.name;
                 playerData.user_email = recvPacket.email;
-                SceneController.Instance.LoadScene("MenuScene");
+                //LoadingManager.Instance.StartLoading("MenuScene");
+                //SceneController.Instance.LoadScene("MenuScene");
+                messageQueue.Enqueue(recvPacket.message);
             }
-            messageQueue.Enqueue(jsonString);
+            
         }
     }
 

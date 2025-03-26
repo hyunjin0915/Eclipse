@@ -2,17 +2,23 @@ using UnityEngine;
 using OpenAI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine.UI;
 
-public class ChatGPTManager : MonoBehaviour
+public class ChatGPTManager : Singleton<ChatGPTManager>
 {
     private OpenAIApi openAI = new OpenAIApi();
     private List<ChatMessage> messages = new List<ChatMessage>();
+
+    public ChatMessage chatResponse;
     public async void AskChatGPT(string newText)
     {
         ChatMessage newMessage = new ChatMessage();
         newMessage.Content = newText;
         newMessage.Role = "user";
+        messages.Add(newMessage);
 
+        newMessage.Role = "system";
+        newMessage.Content = "당신은 아주 재치있고 웃긴 총게임 어시스턴트야. 존댓말을 쓰고.";
         messages.Add(newMessage);
 
         CreateChatCompletionRequest request = new CreateChatCompletionRequest();
@@ -23,10 +29,9 @@ public class ChatGPTManager : MonoBehaviour
 
         if(response.Choices !=null && response.Choices.Count>0)
         {
-            var chatResponse = response.Choices[0].Message;
+            chatResponse = response.Choices[0].Message;
             messages.Add(chatResponse);
-
-            Debug.Log(chatResponse.Content);
+            //Debug.Log(chatResponse.Content);
         }
 
     }
