@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class MenuManager : MonoBehaviour
 {
     public Text GPTText;
+    public InputField askInput;
 
     public PlayerDataScriptableObject playerData;
 
@@ -24,6 +25,11 @@ public class MenuManager : MonoBehaviour
     private void UpdateUI()
     {
         GPTText.text = ChatGPTManager.Instance.chatResponse.Content;
+    }
+    public void OnAskGPT()
+    {
+        ChatGPTManager.Instance.AskChatGPT(askInput.text);
+        Invoke("UpdateUI",2f);
     }
     public void OnStartButton()
     {

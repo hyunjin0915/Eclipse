@@ -6,7 +6,7 @@ public class LogIn : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        SoundManager.Instance.PlayBGM("SmallAdvanture_BGM");
     }
 
     // Update is called once per frame

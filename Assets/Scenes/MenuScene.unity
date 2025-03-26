@@ -422,7 +422,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uAC8C\uC784 \uD50C\uB808\uC774 \uBC29\uBC95\uC744 \uC54C\uB824\uC918."
+  m_Text: "Ex) \uAC8C\uC784 \uD50C\uB808\uC774 \uBC29\uBC95\uC744 \uC54C\uB824\uC918."
 --- !u!222 &395132219
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -857,10 +857,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_NormalColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_HighlightedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -893,10 +893,10 @@ MonoBehaviour:
   m_OnDidEndEdit:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1303348652}
-        m_TargetAssemblyTypeName: ChatGPTManager, Assembly-CSharp
-        m_MethodName: AskChatGPT
-        m_Mode: 5
+      - m_Target: {fileID: 1948762278}
+        m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
+        m_MethodName: OnAskGPT
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -910,7 +910,7 @@ MonoBehaviour:
       m_Calls: []
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
-  m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
+  m_SelectionColor: {r: 0.4666667, g: 0.4666667, b: 0.47450984, a: 1}
   m_Text: 
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
@@ -2072,17 +2072,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0be01fc94deb86b4b9eb0a587d988d79, type: 3}
---- !u!114 &1303348652 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 895040175231463048, guid: 0be01fc94deb86b4b9eb0a587d988d79, type: 3}
-  m_PrefabInstance: {fileID: 1303348651}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ba3a486c2d154c4a854532c14002e4e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1672906724
 GameObject:
   m_ObjectHideFlags: 0
@@ -2439,7 +2428,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 2
-  m_Text: "\uC548\uB155\uD558\uC138\uC694"
+  m_Text: 
 --- !u!114 &1905481372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2772,6 +2761,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GPTText: {fileID: 1905481371}
+  askInput: {fileID: 619113180}
   playerData: {fileID: 11400000, guid: 7a5cb097354202d42ad3769f8be26d87, type: 2}
 --- !u!1 &2002600690
 GameObject:

@@ -81,12 +81,19 @@ public class NetworkManager : Singleton<NetworkManager>
             RecvPacket recvPacket = JsonUtility.FromJson<RecvPacket>(jsonString);
             if(recvPacket.message.Equals("success")) //로그인 성공하면
             {
-                playerData.user_id = idUI.text;
-                playerData.user_name = recvPacket.name;
-                playerData.user_email = recvPacket.email;
-                //LoadingManager.Instance.StartLoading("MenuScene");
-                //SceneController.Instance.LoadScene("MenuScene");
-                messageQueue.Enqueue(recvPacket.message);
+                if(recvPacket.code.Equals("loginresult"))
+                {
+                    playerData.user_id = idUI.text;
+                    playerData.user_name = recvPacket.name;
+                    playerData.user_email = recvPacket.email;
+                    messageQueue.Enqueue(recvPacket.message);
+                }
+                else if(recvPacket.code.Equals("signinresult"))
+                {
+                    playerData.user_id = NewidUI.text;
+                    playerData.user_name = NewNameUI.text;
+                    playerData.user_email = NewEmailUI.text;
+                }                
             }
             
         }
