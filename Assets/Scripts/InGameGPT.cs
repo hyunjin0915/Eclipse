@@ -54,6 +54,6 @@ public class InGameGPT : MonoBehaviour
         yield return new WaitForSeconds(5f);
         
         //Debug.Log("stage2로 이동");
-         //SceneController.Instance.LoadScene("Stage2");
+         SceneController.Instance.LoadScene("EndScene");
     }
 }
