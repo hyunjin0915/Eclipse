@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99a51b1d9a4baee4d837c49e7fb695bd, type: 3}
   m_Name: PlayerHPManager
   m_EditorClassIdentifier: 
-  health: 50
+  health: 60
+  isHelathDecreas: 0
   maxHealth: 100
+  DyingPanel: {fileID: 7254532601098342190, guid: aecb9c0cbbef5604797307a264e1b001, type: 3}

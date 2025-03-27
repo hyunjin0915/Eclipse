@@ -18,7 +18,7 @@ public enum EZombieState
 
 public class ZombieManager : MonoBehaviour
 {
-    public EZombieState currentState = EZombieState.Idle;
+    public EZombieState currentState = EZombieState.Patrol;
     public float attackRange = 1.0f; //공격 범위 
     public float attackDelay = 2.0f; //공격 딜레이
     private float nextAttackTime = 0.0f; //다음 공격 시간 관리
@@ -182,11 +182,12 @@ public class ZombieManager : MonoBehaviour
 
             agent.speed = moveSpeed;
             agent.isStopped = false; 
+            agent.destination = PlayerManager.Instance.transform.position;
                                                                                                                                                                 
 
             if (distance > trackingRange)
             {
-                ChangeState(EZombieState.Idle);
+                ChangeState(EZombieState.Patrol);
             }
 
             if (distance < attackRange)

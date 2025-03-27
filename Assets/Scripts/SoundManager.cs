@@ -52,18 +52,18 @@ public class SoundManager : Singleton<SoundManager>
     {
         if(DicbgmClips.ContainsKey (name))
         {
-            if(currentBGMCoroutiune != null)
-            {
-                StopCoroutine(currentBGMCoroutiune);
-            }
+            // if(currentBGMCoroutiune != null)
+            // {
+            //     StopCoroutine(currentBGMCoroutiune);
+            // }
 
-            currentBGMCoroutiune = StartCoroutine(FadeOutBGM(fadeDuration, () =>
-            {
-                bgmSource.spatialBlend = 0f;
-                bgmSource.clip = DicbgmClips[name];
-                bgmSource.Play();
-                currentBGMCoroutiune = StartCoroutine(FadeInBGM(fadeDuration));
-            }));
+            // currentBGMCoroutiune = StartCoroutine(FadeOutBGM(fadeDuration, () =>
+            // {
+            //     bgmSource.spatialBlend = 0f;
+            //     bgmSource.clip = DicbgmClips[name];
+            //     bgmSource.Play();
+            //     currentBGMCoroutiune = StartCoroutine(FadeInBGM(fadeDuration));
+            // }));
 
             bgmSource.clip = DicbgmClips[name];
             bgmSource.Play();

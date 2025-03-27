@@ -11,7 +11,6 @@ public class HPScriptableObject : ScriptableObject
     public int maxHealth = 100;
 
     public Action hpChangeAction;
-
     private void OnEnable()
     {
         health = maxHealth;

@@ -12,6 +12,7 @@ TagManager:
   - Eatable
   - Tree
   - SuppliesBox
+  - Walkie
   layers:
   - Default
   - TransparentFX

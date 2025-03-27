@@ -12,6 +12,8 @@ public enum WeaponMode
 
 public class PlayerManager : Singleton<PlayerManager>
 {
+    public GameObject gptController;
+    public bool isGetWalkieTalkie = false;
     public bool lastOpenedForward = false;
     public Transform playerHead;//플레이어 머리 위치 - 1인칭 모드를 위해
 
@@ -55,7 +57,7 @@ public class PlayerManager : Singleton<PlayerManager>
     public LayerMask TargetLayerMask;
 
 
-    public Vector3 boxSize = new Vector3(2.0f, 2.0f, 2.0f);
+    public Vector3 boxSize = new Vector3(2.0f, 5.0f, 3.0f);
     public float castDistance = 5.0f;
     public LayerMask itemLayer;
     public Transform itemGetPos; //raycast 가 어디서 나타날지 정해주는
@@ -91,7 +93,7 @@ public class PlayerManager : Singleton<PlayerManager>
 
     void Start()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
         mainCamera = CameraManager.Instance.mainCamera.transform;
         animator = GetComponent<Animator>();
         shotGunObj.SetActive(false);
@@ -117,7 +119,7 @@ public class PlayerManager : Singleton<PlayerManager>
         Attack();
 
 
-        ItemPickUP();
+        //ItemPickUP();
 
         AnimationSet();
         Crouch();
@@ -148,12 +150,15 @@ public class PlayerManager : Singleton<PlayerManager>
 
     public void ReGame()
     {
+        isPause = false;
+        Cursor.lockState = CursorLockMode.Locked;
         PauseObj.SetActive(false);
         Time.timeScale = 1; //게임 시간 재개 
 
     }
     void Pause()
     {
+        Cursor.lockState = CursorLockMode.None;
         PauseObj.SetActive(true);
         Time.timeScale = 0; //게임 시간 정지
     }
@@ -178,24 +183,28 @@ public class PlayerManager : Singleton<PlayerManager>
     void Reload()
     {
         if (Input.GetKeyDown(KeyCode.R))
-        { 
-            int cnt = 5 - fireBulletCount; //장전해야하는개수 
-            if (cnt < saveBulletCount) 
+        {
+            if (isWeaponGet && isWeponHold)
             {
-                fireBulletCount += cnt;
-                saveBulletCount -= cnt;
-            }
-            else
-            {
-                fireBulletCount += saveBulletCount;
-                saveBulletCount = 0;
+                int cnt = 5 - fireBulletCount; //장전해야하는개수 
+                if (cnt < saveBulletCount)
+                {
+                    fireBulletCount += cnt;
+                    saveBulletCount -= cnt;
+                }
+                else
+                {
+                    fireBulletCount += saveBulletCount;
+                    saveBulletCount = 0;
+                }
+
+                bulletText.text = fireBulletCount + "/" + saveBulletCount;
+                SoundManager.Instance.PlaySFX("ShotGunLoad", transform.position);
+                animator.SetTrigger("Reload");
             }
 
-            bulletText.text = fireBulletCount + "/" + saveBulletCount;
-            SoundManager.Instance.PlaySFX("ShotGunLoad", transform.position);
-            animator.SetTrigger("Reload");
         }
-            
+
     }
 
 
@@ -284,8 +293,10 @@ public class PlayerManager : Singleton<PlayerManager>
                 Vector3 origin = playerHead.position; //player pivot이 발끝이라 따로 지정
                 Vector3 direction = itemGetPos.forward;
                 DebugBox(origin, direction);
-
-                currentHitItems = Physics.BoxCastAll(origin, boxSize / 2, direction, Quaternion.identity, castDistance, itemLayer);
+                currentHitItems = Physics.BoxCastAll(origin, boxSize/2, direction, Quaternion.identity, castDistance, itemLayer);
+                
+                animator.SetTrigger("PickUp");
+                SoundManager.Instance.PlaySFX("ItemPickUP", transform.position);
 
                 bool isTreeForward = false;
                 
@@ -306,11 +317,13 @@ public class PlayerManager : Singleton<PlayerManager>
                     {
                         //보급품 열면...
                         Debug.Log("보급품");
+                        hit.collider.gameObject.GetComponent<SuppliesBox>().PopSupplies();
                     }
                 }
                 
                 if(isTreeForward && isPotionHold)
                 {
+                    
                     animator.SetTrigger("Jump");
                     holdPotion.transform.SetParent(handPos.transform);
                     holdPotion.transform.localPosition = new Vector3(0.3f, -0.1f, 0.1f);
@@ -339,6 +352,13 @@ public class PlayerManager : Singleton<PlayerManager>
        
         foreach (RaycastHit hit in currentHitItems)
         {
+            if(hit.collider.gameObject.CompareTag("Walkie"))
+            {
+                hit.collider.gameObject.SetActive(false);
+                isGetWalkieTalkie = true;
+                StartCoroutine(gptController.GetComponent<InGameGPT>().CallingGPT());
+            }
+
             if (hit.collider.gameObject.CompareTag("Weapon"))
             {
                 hit.collider.gameObject.SetActive(false);
@@ -349,8 +369,8 @@ public class PlayerManager : Singleton<PlayerManager>
 
             if(hit.collider.gameObject.CompareTag("Bullet"))
             {
-                hit.collider.transform.SetParent(handPos.transform);
-                //hit.collider.gameObject.SetActive(false);
+                //hit.collider.transform.SetParent(handPos.transform);
+                hit.collider.gameObject.SetActive(false);
                 saveBulletCount += 30;
                 if(saveBulletCount > 120)
                 {

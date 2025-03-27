@@ -13,12 +13,18 @@ public class ChatGPTManager : Singleton<ChatGPTManager>
     public async void AskChatGPT(string newText)
     {
         ChatMessage newMessage = new ChatMessage();
-        newMessage.Content = newText;
-        newMessage.Role = "user";
-        messages.Add(newMessage);
 
         newMessage.Role = "system";
         newMessage.Content = "당신은 아주 재치있고 웃긴 총게임 어시스턴트야. 존댓말을 쓰고.";
+        messages.Add(newMessage);
+
+        newMessage.Role = "assistant";
+        newMessage.Content = "2025년 KBO 한국시리즈 우승은 두산베어스가 할 듯. 그리고 이 총 게임의 방법은 게임 조작 키는 F가 카메라 변경. V가 게임 시점 1인칭, 3인칭 변경." + 
+                                    "마우스 좌클릭으로 총 조준, 우클릭으로 총 발사. E로 아이템 줍기. 스페이스바로 상호작용. 마을을 돌아다니며 무기와 총알을 얻어서 살아남으면 되는 게임이야. ";
+        messages.Add(newMessage);
+
+        newMessage.Role = "user";
+        newMessage.Content = newText;
         messages.Add(newMessage);
 
         CreateChatCompletionRequest request = new CreateChatCompletionRequest();

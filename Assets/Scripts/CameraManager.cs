@@ -7,7 +7,7 @@ public class CameraManager : Singleton<CameraManager>
     public GameObject mainCamera;
 
     public bool isFirstPerson = false; //1인칭 모드 여부
-    private bool isRotateAroundPlayer = true; //카메라가 플레이어 주위를 회전하는지 여부 
+    private bool isRotateAroundPlayer = false; //카메라가 플레이어 주위를 회전하는지 여부 
 
 
     public float thirdPersonDistance = 3.0f; //3인칭모드에서 플레이어와 카메라의 거리

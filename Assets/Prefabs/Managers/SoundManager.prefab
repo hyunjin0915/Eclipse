@@ -53,6 +53,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 9ddc275c5b2e2f94b8ac0bae1ffd007b, type: 3}
   - name: helicopterpassage
     clip: {fileID: 8300000, guid: 9df8ce4db1aa8a447b3c85f7f6721fa0, type: 3}
+  - name: Interweb
+    clip: {fileID: 8300000, guid: ef90acd2082beb1458905493bb5cdfd1, type: 3}
   sfxClipList:
   - name: UIButton
     clip: {fileID: 8300000, guid: aacf8e74a8e9668419f5369194ac23a2, type: 3}
