@@ -1,4 +1,4 @@
-# 🙇🏻‍♀️ 프로젝트 소개
+#  프로젝트 소개
 
 | **Engine**     | Unity 3D |
 | --- | --- |
@@ -11,10 +11,10 @@
 
 좀비들을 피해 보급품을 얻어 다음 스테이지까지 무사히 이동하는 게임
 
-# 💁🏻‍♀️ 프로젝트 구현
+#  프로젝트 구현
 
 
-## 🔵 TCP 패킷 통신을 활용하여 Local DB에 회원 정보 저장
+##  TCP 패킷 통신을 활용하여 Local DB에 회원 정보 저장
 
 ### 🔹 사용 기술 및 라이브러리
 
@@ -53,19 +53,19 @@ mySQL 의 회원 정보를 쿼리문을 활용하여 비교 후 로그인 성공
     → 유저 정보를 게임 전역에서 사용 가능하도록 설계
     
 
-## 🔵 Chat GPT API 활용
+##  Chat GPT API 활용
 <img width="87" alt="image (9)" src="https://github.com/user-attachments/assets/8255aff1-9e9c-4e49-8e99-668ead8cb357" /> [OpenAI Platform](https://platform.openai.com/settings/organization/general)
 
 ### 🔹게임 관련 내용을 미리 학습 시켜 사용
 
-### 🔹메인메뉴 씬에서 지피티를 활용한 자유로운 대화 가능
-<img width="425" alt="image (10)" src="https://github.com/user-attachments/assets/586a5291-cc5e-4d17-a5f0-7c50575e2289" />
+ 🔹메인메뉴 씬에서 지피티를 활용한 자유로운 대화 가능 <br/>
+<img width="425" alt="image (10)" src="https://github.com/user-attachments/assets/586a5291-cc5e-4d17-a5f0-7c50575e2289" /><br/>
 
-### 🔹로그인 한 유저의 정보를 활용하여 상황에 맞는 멘트를 메번 다르게 출력
+ 🔹로그인 한 유저의 정보를 활용하여 상황에 맞는 멘트를 메번 다르게 출력 <br/>
 <img width="292" alt="image (11)" src="https://github.com/user-attachments/assets/106314ad-1381-4c61-8788-9b28a7d34a09" />
 <img width="295" alt="image (12)" src="https://github.com/user-attachments/assets/35df19a4-f6f1-4008-9e74-c1570c9c58cc" />
 
-## 🔵 Occlusion Culling 옵션 사용
+##  Occlusion Culling 옵션 사용
 
 ### 🔹 다른 오브젝트에 가려 카메라에 보이지 않는 오브젝트들이 많음
 
@@ -79,7 +79,7 @@ mySQL 의 회원 정보를 쿼리문을 활용하여 비교 후 로그인 성공
 <img width="547" alt="image (14)" src="https://github.com/user-attachments/assets/807b8925-2998-43d8-a53a-4c40164790dd" />
 
 
-## 🔵 플레이어 시점 변경 및 애니메이션 적용
+##  플레이어 시점 변경 및 애니메이션 적용
 
 ### 🔹 카메라의 위치 조정을 통해 시점 변경 구현
 
@@ -108,11 +108,11 @@ mySQL 의 회원 정보를 쿼리문을 활용하여 비교 후 로그인 성공
 <img width="236" alt="image (19)" src="https://github.com/user-attachments/assets/e8a452b0-ea9c-426f-804b-1d1c6f37d163" />
 
 
-## 🔵 플레이어와의 거리에 따라서 행동 패턴이 변경되는 좀비 AI 구현
+##  플레이어와의 거리에 따라서 행동 패턴이 변경되는 좀비 AI 구현
 
 <br/>
 
-# 🙆🏻‍♀️ 문제 발생 및 해결
+#  문제 발생 및 해결
 
 
 ### ⚠️ 유니티에서 서버로부터 데이터를 받아오는 함수 내에서 씬 전환을 시도하면 오류 발생
