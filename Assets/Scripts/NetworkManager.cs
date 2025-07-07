@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
+using Newtonsoft.Json;
 
 /// <summary>
 /// 서버와 주고받을 패킷 기본 구조
@@ -99,7 +100,7 @@ public class NetworkManager : Singleton<NetworkManager>
             Debug.Log($"[RecvPacket] JSON: {jsonString}");
 
             // 4) JSON -> RecvPacket 객체로 디시리얼라이즈
-            RecvPacket recvPacket = JsonUtility.FromJson<RecvPacket>(jsonString);
+            RecvPacket recvPacket = JsonConvert.DeserializeObject<RecvPacket>(jsonString);
 
             // 5) 서버 응답 처리: 로그인/회원가입 성공 시 저장
             if (recvPacket.message.Equals("success"))
@@ -177,7 +178,8 @@ public class NetworkManager : Singleton<NetworkManager>
             id = idUI.text,
             password = passwordUI.text
         };
-        SendPacket(JsonUtility.ToJson(loginPacket));
+        string jsonStr = JsonConvert.SerializeObject(loginPacket);
+        SendPacket(jsonStr);
     }
 
     /// <summary>
@@ -202,7 +204,8 @@ public class NetworkManager : Singleton<NetworkManager>
             name = NewNameUI.text,
             email = NewEmailUI.text
         };
-        SendPacket(JsonUtility.ToJson(packet));
+        string jsonStr = JsonConvert.SerializeObject(packet);
+        SendPacket(jsonStr);
 
         // UI 다시 로그인 화면으로 전환
         LogInPanel.SetActive(true);
